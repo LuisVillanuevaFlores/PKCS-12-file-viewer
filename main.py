@@ -43,15 +43,24 @@ def index():
     if key_form.validate_on_submit():
         file = key_form.key.data
         pwd = key_form.pwd.data
-        file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)),secure_filename(file.filename)))
+        filename = 'key.p12'
+        file.save(os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), filename
+        ))
         if file:
             try:
-                private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(open('./'+file.filename, "rb").read(), bytes(pwd, 'utf-8'))
+                p12_file = open(os.path.abspath(os.path.dirname(__file__)) + f'/{filename}', 'rb')
+                p12_data = p12_file.read()
+                p12_file.close()
+                os.remove(os.path.abspath(os.path.dirname(__file__)) + f'/{filename}')
+                private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(p12_data, bytes(pwd, 'utf-8'))
             except ValueError as ve:
                 if('Could not deserialize PKCS12 data' in str(ve)):
                     flash("No es un fichero válido")
-                if('Invalid password or PKCS12 data' in str(ve)):
+                elif('Invalid password or PKCS12 data' in str(ve)):
                     flash("Contraseña no válida")
+                else:
+                    flash(str(ve))
                 return redirect('/')
 
             private_numbers = private_key.private_numbers()
