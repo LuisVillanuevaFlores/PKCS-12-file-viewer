@@ -48,6 +48,31 @@
             {%endfor%}
         </div>
         <div class="text-center">
+            <h2>Información de certificados</h2>
+            <div class="table table-responsive mt-3">
+                <table class="table table-responsive table-bordered table-fixed">
+                    <thead>
+                        <tr>
+                            <th class="col" scope="col">Nombre</th>
+                            <th class="col" scope="col">Serial Number</th>
+                            <th class="col" scope="col">Validez(Desde - Hasta)</th>
+                            <th class="col" scope="col">Algoritmo - Tamaño</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-break">
+                        {% for cert in certificates %}
+                        <tr>
+                            <td class="col" scope="col">{{cert.get('subject')}}</td>
+                            <td class="col" scope="col">{{cert.get('serial_number')}}</td>
+                            <td class="col" scope="col">{{cert.get('before')}} - {{cert.get('after')}}</td>
+                            <td class="col" scope="col">{{cert.get('algorithm')}} - {{cert.get('size')}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="text-center">
             {% if data.get('type') == 'private' %}
                 <h2>Llave privada</h2>
             {% elif data.get('type') == 'public' %}
@@ -58,7 +83,7 @@
                     <thead>
                         <tr>
                             {% for keys in data.keys() %}
-                                <th class="col" style="min-width: 200px;" scope="col">{{keys}}</th>
+                                <th class="col" scope="col">{{keys}}</th>
                             {%endfor%}
                         </tr>
                     </thead>

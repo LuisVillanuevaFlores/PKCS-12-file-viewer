@@ -1,8 +1,6 @@
 import os
 
-from Crypto.PublicKey import RSA
 from cryptography.hazmat.primitives.serialization import pkcs12
-from OpenSSL import crypto
 from flask import Flask
 from flask import flash
 from flask_bootstrap import Bootstrap
@@ -13,7 +11,6 @@ from wtforms.fields import FileField
 from wtforms.fields import PasswordField
 from wtforms.fields import SubmitField
 from werkzeug.utils import secure_filename
-from wtforms.fields import URLField
 from flask_wtf.file import FileAllowed
 from flask_wtf.file import FileRequired
 from wtforms.validators import DataRequired
@@ -21,6 +18,8 @@ from wtforms.validators import DataRequired
 app = Flask(__name__,
 template_folder='./templates',
 static_folder='./static')
+app.config['WTF_CSRF_ENABLED']= False
+app.config['SECRET_KEY']='KEY_SECRET'
 
 
 bootstrap = Bootstrap(app)
@@ -58,30 +57,31 @@ def index():
             private_numbers = private_key.private_numbers()
             private_numbers_public = private_numbers.public_numbers
 
-            if private_numbers:
-                data.update({
-                    'modulus': private_numbers_public.n,
-                    'publicExponent': private_numbers_public.e,
-                    'privateExponent': private_numbers.d,
-                    'prime1': private_numbers.p,
-                    'prime2': private_numbers.q,
-                    'exponent1': private_numbers.dmp1,
-                    'exponent2': private_numbers.dmq1,
-                    'coefficient': private_numbers.iqmp,
+            data.update({
+                'modulus': private_numbers_public.n,
+                'publicExponent': private_numbers_public.e,
+                'privateExponent': private_numbers.d,
+                'prime1': private_numbers.p,
+                'prime2': private_numbers.q,
+                'exponent1': private_numbers.dmp1,
+                'exponent2': private_numbers.dmq1,
+                'coefficient': private_numbers.iqmp,
+            })
+            context['data'] = data
+            context['certificates'] = []
+            certificates = [certificate] + additional_certificates
+            for cert in certificates:
+                context['certificates'].append({
+                    'subject': cert.subject.rfc4514_string(),
+                    'serial_number': cert.serial_number,
+                    'before': cert.not_valid_before.strftime('%d/%m/%Y'),
+                    'after': cert.not_valid_after.strftime('%d/%m/%Y'),
+                    'algorithm': cert.signature_hash_algorithm.name,
+                    'size': cert.public_key().key_size,
                 })
-                context['data'] = data
-                print("privada")
-            else:
-                data.update({
-                    'type': 'public',
-                    'modulus': key.n,
-                    'publicExponent': key.e,
-                })
-                context['data'] = data
+
     return render_template('index.html', **context)
 
 if __name__=='__main__':
-    app.config['WTF_CSRF_ENABLED']= False
-    app.config['SECRET_KEY']='KEY_SECRET'
     app.config['ENV']='development'
     app.run(debug=True)
