@@ -18,7 +18,7 @@
         </div>
         <form action="{{url_for('index')}}" method="POST" enctype="multipart/form-data">
             <div class="row mt-5 form-basic">
-                <div class="col-lg-9 col-sm-9 pb-3">
+                <div class="col-lg-6 col-sm-9 pb-3">
                     <div class="form-group">
                         {{key_form.key (class="form-control", placeholder="[Sube una llave a verificar ...]")}}
                         {%for error in key_form.key.errors %}
@@ -31,6 +31,10 @@
                 </div>
                 <div class="col-lg-3 col-sm-3">
                     {{key_form.submit (class="btn btn-secondary btn-sm button-file")}}
+                </div>
+
+                <div class="col-lg-3 col-sm-3">
+                    {{key_form.pwd (class="form-control", placeholder="[Ingrese el password ...]") }}
                 </div>
             </div>
         </form>
@@ -58,7 +62,7 @@
                             {%endfor%}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="text-break">
                         <tr>
                             {% for values in data.values() %}
                                 <td class="col" scope="col">{{values}}</td>

@@ -131,3 +131,5 @@ dmypy.json
 *.pem
 
 test.py
+
+*.p12
